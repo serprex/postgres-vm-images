@@ -24,9 +24,24 @@ echo "[setup_base.sh] Downloading PostgreSQL GPG key..."
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /usr/share/keyrings/pgdg.gpg
 sh -c 'echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
 
+# Add PostgreSQL Extensions packaging repository
+echo "[setup_base.sh] Adding PostgreSQL Extensions packaging repository..."
+cat <<EOF >> /etc/apt/sources.list.d/pg-packaging-s3.sources
+Types: deb
+URIs: s3://609927696493.us-west-2.aws.clickhouse.cloud-clickgres-ext-debs/
+Suites: $(lsb_release -cs)
+Components: main
+Trusted: yes
+EOF
+
 # Add golang PPA for WAL-G (--no-update to avoid apt-get update inside add-apt-repository)
 echo "[setup_base.sh] Adding golang PPA..."
 add-apt-repository -y --no-update ppa:longsleep/golang-backports
+
+echo "[setup_base.sh] Adding S3 APT transport..."
+wget --quiet -O /usr/lib/apt/methods/s3 https://raw.githubusercontent.com/ClickHouse/apt-transport-s3/refs/heads/clickhouse/s3
+chmod +x /usr/lib/apt/methods/s3
+
 
 # Update package lists
 echo "[setup_base.sh] Running apt-get update..."
@@ -84,6 +99,7 @@ for version in 16 17 18; do
     mkdir -p "$PACKAGE_CACHE/$version"
     pushd "$PACKAGE_CACHE/$version" > /dev/null
     xargs -a /usr/local/share/postgresql/packages/$version.txt apt-get download
+    xargs -a /usr/local/share/postgresql/packages/${version}-extra.txt apt-get download
     popd > /dev/null
 done
 

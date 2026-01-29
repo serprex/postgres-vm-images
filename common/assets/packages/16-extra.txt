@@ -1,0 +1,14 @@
+postgresql-16-ip4r
+postgresql-16-ip4r-dbgsym
+postgresql-16-pg-hint-plan
+postgresql-16-pg-hint-plan-dbgsym
+postgresql-16-plpgsql-check
+postgresql-16-plpgsql-check-dbgsym
+postgresql-16-prefix
+postgresql-16-prefix-dbgsym
+postgresql-16-semver
+postgresql-16-semver-dbgsym
+postgresql-16-unit
+postgresql-16-unit-dbgsym
+postgresql-16-pg-ivm
+postgresql-16-pg-clickhouse

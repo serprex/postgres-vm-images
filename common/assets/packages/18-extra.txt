@@ -1,0 +1,14 @@
+postgresql-18-ip4r
+postgresql-18-ip4r-dbgsym
+postgresql-18-pg-hint-plan
+postgresql-18-pg-hint-plan-dbgsym
+postgresql-18-plpgsql-check
+postgresql-18-plpgsql-check-dbgsym
+postgresql-18-prefix
+postgresql-18-prefix-dbgsym
+postgresql-18-semver
+postgresql-18-semver-dbgsym
+postgresql-18-unit
+postgresql-18-unit-dbgsym
+postgresql-18-pg-ivm
+postgresql-18-pg-clickhouse

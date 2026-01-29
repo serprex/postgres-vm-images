@@ -1,0 +1,14 @@
+postgresql-17-ip4r
+postgresql-17-ip4r-dbgsym
+postgresql-17-pg-hint-plan
+postgresql-17-pg-hint-plan-dbgsym
+postgresql-17-plpgsql-check
+postgresql-17-plpgsql-check-dbgsym
+postgresql-17-prefix
+postgresql-17-prefix-dbgsym
+postgresql-17-semver
+postgresql-17-semver-dbgsym
+postgresql-17-unit
+postgresql-17-unit-dbgsym
+postgresql-17-pg-ivm
+postgresql-17-pg-clickhouse
