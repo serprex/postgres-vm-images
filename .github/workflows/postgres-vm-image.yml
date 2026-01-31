@@ -1,6 +1,4 @@
 name: Build PostgreSQL VM Image
-run-name: Build ${{ inputs.image_suffix }} ${{ inputs.image_prefix }}
-
 on:
   workflow_dispatch:
     inputs:
@@ -44,7 +42,7 @@ on:
       aws_ami_regions:
         description: "AWS regions for AMI"
         type: string
-        default: "us-west-2,us-east-1,us-east-2,eu-west-1,ap-southeast-2"
+        default: "us-east-1,us-east-2,eu-west-1,ap-southeast-2"
       create_ubicloud_pr:
         description: "🔄 Create PR to ubicloud/ubicloud with updated image versions"
         default: false
@@ -66,7 +64,7 @@ jobs:
   # x64 build - always runs (unless test_pr_creation is enabled)
   build-x64:
     name: Build postgres-ubuntu-2204-x64-${{ inputs.image_suffix }}
-    runs-on: ubicloud-standard-4-ubuntu-2204
+    runs-on: [self-hosted, large, x64]
     if: ${{ !inputs.test_pr_creation }}
     outputs:
       sha256: ${{ steps.compute_sha.outputs.sha256 }}
@@ -79,7 +77,7 @@ jobs:
           echo "Architecture: x64"
 
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v3
 
       - name: Configure AWS credentials (build role)
         if: ${{ inputs.use_aws_role }}
@@ -91,12 +89,6 @@ jobs:
 
       - name: Build image
         run: |
-          if [ "${{ inputs.use_aws_role }}" != "true" ]; then
-            export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
-            export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-            export AWS_REGION=us-west-2
-            export AWS_DEFAULT_REGION=us-west-2
-          fi
           sudo --preserve-env=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_SESSION_TOKEN,AWS_REGION,AWS_DEFAULT_REGION \
             ./build.sh ${{ inputs.image_resize_gb }} ${{ inputs.run_apt_upgrade }}
 
@@ -339,11 +331,11 @@ jobs:
           IFS=',' read -ra REGION_ARRAY <<< "$regions"
           for entry in "${REGION_ARRAY[@]}"; do
             entry=$(echo "$entry" | xargs)
-
+            
             # Parse region:account1:account2:account3 format
             IFS=':' read -ra PARTS <<< "$entry"
             region="${PARTS[0]}"
-
+            
             # Extract account IDs for this region
             account_ids=""
             for ((i=1; i<${#PARTS[@]}; i++)); do
@@ -367,7 +359,7 @@ jobs:
 
             echo "Copied AMI to ${region}: ${copied_ami_id}"
             echo "- ${region}: ${copied_ami_id}" >> $GITHUB_STEP_SUMMARY
-
+            
             # Store with account IDs: region:ami_id:account1:account2...
             if [ -z "$all_ami_ids" ]; then
               all_ami_ids="${region}:${copied_ami_id}${account_ids}"
@@ -398,7 +390,7 @@ jobs:
             IFS=':' read -ra PARTS <<< "$entry"
             region="${PARTS[0]}"
             ami="${PARTS[1]}"
-
+            
             # Extract account IDs (if any)
             account_ids=()
             for ((i=2; i<${#PARTS[@]}; i++)); do
@@ -417,7 +409,7 @@ jobs:
               echo "  State: ${state}, waiting..."
               sleep 20
             done
-
+            
             # Check if AMI became available
             if [ "$state" != "available" ]; then
               echo "ERROR: AMI ${ami} did not become available within 10 minutes in ${region}"
@@ -436,7 +428,7 @@ jobs:
             else
               # Account IDs specified - share with specific accounts
               echo "Sharing ${ami} in ${region} with accounts: ${account_ids[*]}..."
-
+              
               # Build launch permission list
               permission_list=""
               for account_id in "${account_ids[@]}"; do
@@ -446,7 +438,7 @@ jobs:
                   permission_list="${permission_list},{UserId=${account_id}}"
                 fi
               done
-
+              
               aws ec2 modify-image-attribute \
                 --image-id "${ami}" \
                 --launch-permission "Add=[${permission_list}]" \
@@ -459,7 +451,7 @@ jobs:
         if: ${{ inputs.upload_aws_ami && !inputs.build_only }}
         run: |
           all_ami_ids="${{ steps.copy_ami.outputs.all_ami_ids }}"
-
+          
           # If no copies were made, use the source AMI
           if [ -z "$all_ami_ids" ]; then
             ami_id=${{ steps.register_ami.outputs.ami_id }}
@@ -474,7 +466,7 @@ jobs:
             ami="${PARTS[1]}"
             echo "  ${region}: ${ami}" >> ami-ids-x64.yaml
           done
-
+          
           echo "Generated ami-ids-x64.yaml:"
           cat ami-ids-x64.yaml
 
@@ -495,7 +487,7 @@ jobs:
   # arm64 build
   build-arm64:
     name: Build postgres-ubuntu-2204-arm64-${{ inputs.image_suffix }}
-    runs-on: ubicloud-standard-4-arm-ubuntu-2204
+    runs-on: [self-hosted, large, arm64]
     if: ${{ !inputs.test_pr_creation && (inputs.build_arm64 || (inputs.upload_aws_ami && !inputs.build_only)) }}
     outputs:
       sha256: ${{ steps.compute_sha.outputs.sha256 }}
@@ -508,7 +500,7 @@ jobs:
           echo "Architecture: arm64"
 
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v3
 
       - name: Configure AWS credentials (build role)
         if: ${{ inputs.use_aws_role }}
@@ -520,12 +512,6 @@ jobs:
 
       - name: Build image
         run: |
-          if [ "${{ inputs.use_aws_role }}" != "true" ]; then
-            export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
-            export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-            export AWS_REGION=us-west-2
-            export AWS_DEFAULT_REGION=us-west-2
-          fi
           sudo --preserve-env=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_SESSION_TOKEN,AWS_REGION,AWS_DEFAULT_REGION \
             ./build.sh ${{ inputs.image_resize_gb }} ${{ inputs.run_apt_upgrade }}
 
@@ -719,11 +705,11 @@ jobs:
           IFS=',' read -ra REGION_ARRAY <<< "$regions"
           for entry in "${REGION_ARRAY[@]}"; do
             entry=$(echo "$entry" | xargs)
-
+            
             # Parse region:account1:account2:account3 format
             IFS=':' read -ra PARTS <<< "$entry"
             region="${PARTS[0]}"
-
+            
             # Extract account IDs for this region
             account_ids=""
             for ((i=1; i<${#PARTS[@]}; i++)); do
@@ -747,7 +733,7 @@ jobs:
 
             echo "Copied AMI to ${region}: ${copied_ami_id}"
             echo "- ${region}: ${copied_ami_id}" >> $GITHUB_STEP_SUMMARY
-
+            
             # Store with account IDs: region:ami_id:account1:account2...
             if [ -z "$all_ami_ids" ]; then
               all_ami_ids="${region}:${copied_ami_id}${account_ids}"
@@ -778,7 +764,7 @@ jobs:
             IFS=':' read -ra PARTS <<< "$entry"
             region="${PARTS[0]}"
             ami="${PARTS[1]}"
-
+            
             # Extract account IDs (if any)
             account_ids=()
             for ((i=2; i<${#PARTS[@]}; i++)); do
@@ -797,7 +783,7 @@ jobs:
               echo "  State: ${state}, waiting..."
               sleep 20
             done
-
+            
             # Check if AMI became available
             if [ "$state" != "available" ]; then
               echo "ERROR: AMI ${ami} did not become available within 10 minutes in ${region}"
@@ -816,7 +802,7 @@ jobs:
             else
               # Account IDs specified - share with specific accounts
               echo "Sharing ${ami} in ${region} with accounts: ${account_ids[*]}..."
-
+              
               # Build launch permission list
               permission_list=""
               for account_id in "${account_ids[@]}"; do
@@ -826,7 +812,7 @@ jobs:
                   permission_list="${permission_list},{UserId=${account_id}}"
                 fi
               done
-
+              
               aws ec2 modify-image-attribute \
                 --image-id "${ami}" \
                 --launch-permission "Add=[${permission_list}]" \
@@ -839,7 +825,7 @@ jobs:
         if: ${{ !inputs.build_only }}
         run: |
           all_ami_ids="${{ steps.copy_ami.outputs.all_ami_ids }}"
-
+          
           # If no copies were made, use the source AMI
           if [ -z "$all_ami_ids" ]; then
             ami_id=${{ steps.register_ami.outputs.ami_id }}
@@ -854,7 +840,7 @@ jobs:
             ami="${PARTS[1]}"
             echo "  ${region}: ${ami}" >> ami-ids-arm64.yaml
           done
-
+          
           echo "Generated ami-ids-arm64.yaml:"
           cat ami-ids-arm64.yaml
 
@@ -927,23 +913,36 @@ jobs:
           x64_sha="${{ steps.collect.outputs.x64_sha256 }}"
           arm64_sha="${{ steps.collect.outputs.arm64_sha256 }}"
 
-          # BOOT_IMAGE_SHA256 uses a nested hash: "image" => { "arch" => { "version" => "sha" } }
-          # Replace the existing "version" => "sha" entry for each arch
+          # Find and replace existing entries for this image (update version AND sha)
+          # Pattern: ["image-name", "arch", "old-version"] => "old-sha",
           if [ -n "$x64_sha" ]; then
-            # Find the x64 section under this image and replace the version => sha line
-            sed -i "/\"${image_name}\" => {/,/^    },/ { /\"x64\" => {/,/^      },/ s|\"[^\"]*\" => \"[^\"]*\",|\"${version}\" => \"${x64_sha}\",| ; }" prog/download_boot_image.rb
+            # Replace the existing x64 entry with new version and sha
+            sed -i -E "s|\\[\"${image_name}\", \"x64\", \"[^\"]+\"\\] => \"[^\"]+\"|[\"${image_name}\", \"x64\", \"${version}\"] => \"${x64_sha}\"|" prog/download_boot_image.rb
             echo "Updated x64 entry: ${image_name} -> ${version}"
           fi
 
           if [ -n "$arm64_sha" ]; then
-            # Find the arm64 section under this image and replace the version => sha line
-            sed -i "/\"${image_name}\" => {/,/^    },/ { /\"arm64\" => {/,/^      },/ s|\"[^\"]*\" => \"[^\"]*\",|\"${version}\" => \"${arm64_sha}\",| ; }" prog/download_boot_image.rb
+            # Replace the existing arm64 entry with new version and sha
+            sed -i -E "s|\\[\"${image_name}\", \"arm64\", \"[^\"]+\"\\] => \"[^\"]+\"|[\"${image_name}\", \"arm64\", \"${version}\"] => \"${arm64_sha}\"|" prog/download_boot_image.rb
             echo "Updated arm64 entry: ${image_name} -> ${version}"
           fi
 
           # Show the changes
           echo "=== Updated entries ==="
-          grep -A 10 "\"${image_name}\"" prog/download_boot_image.rb || true
+          grep "${image_name}" prog/download_boot_image.rb || true
+
+      - name: Update config.rb
+        run: |
+          cd ubicloud
+          version="${{ steps.collect.outputs.version }}"
+
+          # Update postgres_ubuntu_2204_version in config.rb
+          sed -i -E "s|(override\s*:postgres_ubuntu_2204_version,\s*\")([^\"]+)(\")|\1${version}\3|" config.rb
+          echo "Updated postgres_ubuntu_2204_version to ${version}"
+
+          # Show the change
+          echo "=== Updated config.rb ==="
+          grep "postgres_ubuntu_2204_version" config.rb
 
       - name: Create migration file
         run: |
@@ -1005,9 +1004,14 @@ jobs:
           # Remove leading spaces from heredoc
           sed -i 's/^          //' "${migration_file}"
 
-          # Write entries with trailing commas (rubocop Style/TrailingCommaInArrayLiteral)
-          for entry in "${entries[@]}"; do
-            echo "${entry}," >> "${migration_file}"
+          # Write entries with proper comma separation
+          total=${#entries[@]}
+          for i in "${!entries[@]}"; do
+            if [ $i -eq $((total - 1)) ]; then
+              echo "${entries[$i]}" >> "${migration_file}"
+            else
+              echo "${entries[$i]}," >> "${migration_file}"
+            fi
           done
 
           cat >> "${migration_file}" << 'MIGRATION_FOOTER'
@@ -1078,7 +1082,8 @@ jobs:
             --head "${branch_name}" \
             --title "Update postgres images to ${{ inputs.image_suffix }}" \
             --body "## Summary
-          - Updates boot image version and SHA256 hashes in \`prog/download_boot_image.rb\`
+          - Updates image version in \`config.rb\`
+          - Updates boot image SHA256 hashes in \`prog/download_boot_image.rb\`
           - Adds migration to update AWS AMI IDs in \`pg_aws_ami\` table
 
           ## Image Version

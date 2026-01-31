@@ -33,7 +33,7 @@ apt-get update
 apt-get install -y qemu-utils kpartx parted
 
 # Install guestfs-tools for virt-resize (used only for initial image resizing)
-apt-get install -y guestfs-tools
+apt install -y guestfs-tools
 chmod 0644 /boot/vmlinuz*
 
 # Download Ubuntu cloud image for detected architecture
