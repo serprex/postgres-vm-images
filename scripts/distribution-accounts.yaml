@@ -1,0 +1,24 @@
+us-east-1:
+  - "069372914117" # dev-us-east-1-cell0-clickgres
+  - "060314908809" # production-us-east-1-cell0-clickgres
+us-east-2:
+  - "498192039992" # staging-us-east-2-cell0-clickgres
+  - "337112168856" # production-us-east-2-cell0-clickgres
+us-west-2:
+  - "423535493707" # dev-us-west-2-cell0-clickgres
+  - "769537049720" # production-us-west-2-cell0-clickgres
+eu-west-1:
+  - "486474413926" # staging-eu-west-1-cell0-clickgres
+  - "383574875753" # production-eu-west-1-cell0-clickgres
+eu-central-1:
+  - "079858838080" # production-eu-central-1-cell0-clickgres
+eu-west-2:
+  - "632325908013" # production-eu-west-2-cell0-clickgres
+ap-south-1:
+  - "465607862780" # production-ap-south-1-cell0-clickgres
+ap-northeast-1:
+  - "356244271487" # production-ap-northeast-1-cell0-clickgres
+ap-southeast-1:
+  - "502411383106" # production-ap-southeast-1-cell0-clickgres
+ap-southeast-2:
+  - "931646336291" # production-ap-southeast-2-cell0-clickgres

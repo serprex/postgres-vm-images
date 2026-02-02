@@ -1,0 +1,31 @@
+name: Trigger Build Image
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 14 * * 1'  # Every Monday at 14:00 UTC
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  trigger-build:
+    name: Trigger Image Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Generate Token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.WORKFLOW_AUTH_APP_ID }}
+          private-key: ${{ secrets.WORKFLOW_AUTH_PRIVATE_KEY }}
+          repositories: ${{ github.event.repository.name }}
+
+      - name: Run trigger script
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: ./scripts/trigger-build-image.sh

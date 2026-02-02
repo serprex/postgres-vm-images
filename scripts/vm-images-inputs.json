@@ -1,0 +1,8 @@
+{
+  "image_prefix": "clickgres",
+  "image_suffix": "REPLACE_ME",
+  "build_arm64": "true",
+  "run_apt_upgrade": "false",
+  "upload_aws_ami": "true",
+  "use_aws_role": "true"
+}
