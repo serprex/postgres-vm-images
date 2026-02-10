@@ -79,6 +79,10 @@ curl -O https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/${CW_ARCH}/latest
 dpkg -i amazon-cloudwatch-agent.deb
 rm -f amazon-cloudwatch-agent.deb
 
+curl -O https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_${CW_ARCH}/amazon-ssm-agent.deb
+dpkg -i amazon-ssm-agent.deb
+rm -f amazon-ssm-agent.deb
+
 # =============================================
 # Amazon GuardDuty Agent (for AWS Runtime Monitoring)
 # =============================================
