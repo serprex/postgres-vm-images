@@ -1,12 +1,16 @@
 us-east-1:
   - "069372914117" # dev-us-east-1-cell0-clickgres
   - "060314908809" # production-us-east-1-cell0-clickgres
+  - "252252054305" # peerdb-test
+  - "248825820370" # pg-test
 us-east-2:
   - "498192039992" # staging-us-east-2-cell0-clickgres
   - "337112168856" # production-us-east-2-cell0-clickgres
 us-west-2:
   - "423535493707" # dev-us-west-2-cell0-clickgres
   - "769537049720" # production-us-west-2-cell0-clickgres
+  - "252252054305" # peerdb-test
+  - "248825820370" # pg-test
 eu-west-1:
   - "486474413926" # staging-eu-west-1-cell0-clickgres
   - "383574875753" # production-eu-west-1-cell0-clickgres
