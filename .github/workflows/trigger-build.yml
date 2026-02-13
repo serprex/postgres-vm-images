@@ -28,4 +28,4 @@ jobs:
       - name: Run trigger script
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-        run: ./scripts/trigger-build-image.sh
+        run: ./scripts/trigger-build-image.sh '${{ github.ref_name }}'
