@@ -39,8 +39,11 @@ fi
 echo "Installing PostgreSQL $VERSION packages..."
 
 # Install common packages first, then version-specific packages
-# Using dpkg with --force-depends to handle dependency ordering,
-# then we'll verify everything is correctly installed
-dpkg -i "$PACKAGE_CACHE/common"/*.deb "$PACKAGE_CACHE/$VERSION"/*.deb
+# Using apt-get to handle dependency resolution for any additional
+# packages placed in the cache by init scripts.
+# Note: The AMI build removes /var/lib/apt/lists/*, so init scripts
+# that add extension debs with transitive dependencies must run
+# apt-get update before this script is called.
+apt-get install -y "$PACKAGE_CACHE/common"/*.deb "$PACKAGE_CACHE/$VERSION"/*.deb
 
 echo "PostgreSQL $VERSION packages installed successfully."
