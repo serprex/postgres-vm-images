@@ -26,3 +26,5 @@ ap-southeast-1:
   - "502411383106" # production-ap-southeast-1-cell0-clickgres
 ap-southeast-2:
   - "931646336291" # production-ap-southeast-2-cell0-clickgres
+ap-northeast-2:
+  - "692531239021" # production-ap-northeast-2-cell0-clickgres
