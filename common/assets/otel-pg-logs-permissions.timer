@@ -1,0 +1,10 @@
+[Unit]
+Description=Periodically re-apply otelcol PostgreSQL log permissions
+
+[Timer]
+# Re-run every 5 minutes to catch config changes
+OnBootSec=60
+OnUnitActiveSec=300
+
+[Install]
+WantedBy=timers.target

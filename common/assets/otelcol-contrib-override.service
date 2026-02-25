@@ -1,0 +1,10 @@
+[Unit]
+After=network-online.target
+StartLimitIntervalSec=0
+[Service]
+User=otelcol
+Group=otelcol
+Restart=always
+RestartSec=5
+ExecStart=
+ExecStart=/usr/bin/otelcol-contrib --config=/home/otelcol/otel-config.yaml --config=/home/otelcol/otel-config-override.yaml --feature-gates=+confmap.enableMergeAppendOption

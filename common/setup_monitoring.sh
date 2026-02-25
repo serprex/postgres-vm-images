@@ -56,7 +56,10 @@ cp /tmp/common/assets/node_exporter.service /etc/systemd/system/node_exporter.se
 mkdir -p /var/lib/node_exporter
 cp /tmp/common/assets/postgres_exporter.service /etc/systemd/system/postgres_exporter.service
 cp /tmp/common/assets/wal-g.service /etc/systemd/system/wal-g.service
-
+mkdir -p /etc/systemd/system/otelcol-contrib.service.d
+cp /tmp/common/assets/otelcol-contrib-override.service /etc/systemd/system/otelcol-contrib.service.d/override.conf
+cp /tmp/common/otel-config.yaml /home/otelcol/otel-config.yaml
+chown otelcol:otelcol /home/otelcol/otel-config.yaml
 # Copy postgres_exporter queries
 mkdir -p /usr/local/share/postgresql
 cp /tmp/common/assets/postgres_exporter_queries.yaml /usr/local/share/postgresql/postgres_exporter_queries.yaml
@@ -82,6 +85,16 @@ rm -f amazon-cloudwatch-agent.deb
 curl -O https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_${CW_ARCH}/amazon-ssm-agent.deb
 dpkg -i amazon-ssm-agent.deb
 rm -f amazon-ssm-agent.deb
+
+echo "=== [setup_monitoring.sh] Installing jq ==="
+apt-get install -y jq acl
+
+echo "=== [setup_monitoring.sh] Installing OpenTelemetry Collector ==="
+#OTEL_VERSION=$(curl -s https://api.github.com/repos/open-telemetry/opentelemetry-collector-releases/releases/latest | jq -r .name | cut -c2-)
+OTEL_VERSION="0.146.0"
+curl -L -o otelcol-contrib.deb "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v${OTEL_VERSION}/otelcol-contrib_${OTEL_VERSION}_linux_${CW_ARCH}.deb"
+dpkg -i otelcol-contrib.deb
+rm -f otelcol-contrib.deb
 
 # =============================================
 # Amazon GuardDuty Agent (for AWS Runtime Monitoring)

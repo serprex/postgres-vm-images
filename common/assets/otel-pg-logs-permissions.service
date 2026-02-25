@@ -1,0 +1,14 @@
+[Unit]
+Description=Grant otelcol access to PostgreSQL logs
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/otel-allow-ro-pg-logs.sh
+RemainAfterExit=no
+# Quick retry on failure (PostgreSQL not ready)
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

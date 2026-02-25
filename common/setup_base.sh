@@ -139,9 +139,10 @@ ls -la "$PACKAGE_CACHE"/*
 echo "=== [setup_base.sh] Setting up users and groups ==="
 
 # Create users
-echo "[setup_base.sh] Creating prometheus and ubi_monitoring users..."
+echo "[setup_base.sh] Creating prometheus, ubi_monitoring and otelcol users..."
 adduser --disabled-password --gecos '' prometheus
 adduser --disabled-password --gecos '' ubi_monitoring
+adduser --disabled-password --gecos '' otelcol
 
 # Create cert_readers group and add users to it
 echo "[setup_base.sh] Creating cert_readers group..."
@@ -158,5 +159,17 @@ apt-get install -y nftables
 cp /tmp/common/assets/imds-protection.nftables.conf /etc/nftables.conf
 cp /tmp/common/assets/imds-protection.service /etc/systemd/system/imds-protection.service
 systemctl enable imds-protection.service
+
+echo "[setup_base.sh] Adding otelcol to systemd-journal group..."
+usermod --append --groups systemd-journal otelcol
+
+echo "[setup_base.sh] Setting up otelcol permissions for PostgreSQL logs..."
+cp /tmp/common/assets/otel-allow-ro-pg-logs.sh /usr/local/bin/otel-allow-ro-pg-logs.sh
+chmod 755 /usr/local/bin/otel-allow-ro-pg-logs.sh
+cp /tmp/common/assets/otel-pg-logs-permissions.service /etc/systemd/system/otel-pg-logs-permissions.service
+cp /tmp/common/assets/otel-pg-logs-permissions.timer /etc/systemd/system/otel-pg-logs-permissions.timer
+systemctl daemon-reload
+systemctl enable otel-pg-logs-permissions.service
+systemctl enable otel-pg-logs-permissions.timer
 
 echo "=== [setup_base.sh] Complete ==="
