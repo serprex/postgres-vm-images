@@ -117,6 +117,7 @@ service:
   extensions:
     - health_check
     - file_storage/state
+    - bearertokenauth/otlp-export
   pipelines:
     logs:
       receivers:

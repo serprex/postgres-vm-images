@@ -60,6 +60,8 @@ mkdir -p /etc/systemd/system/otelcol-contrib.service.d
 cp /tmp/common/assets/otelcol-contrib-override.service /etc/systemd/system/otelcol-contrib.service.d/override.conf
 cp /tmp/common/otel-config.yaml /home/otelcol/otel-config.yaml
 chown otelcol:otelcol /home/otelcol/otel-config.yaml
+touch /home/otelcol/otlp-export.token
+chown otelcol:otelcol /home/otelcol/otlp-export.token
 # Copy postgres_exporter queries
 mkdir -p /usr/local/share/postgresql
 cp /tmp/common/assets/postgres_exporter_queries.yaml /usr/local/share/postgresql/postgres_exporter_queries.yaml
