@@ -4,18 +4,32 @@ on:
   workflow_dispatch: {}
   schedule:
     - cron: '0 14 * * 1'  # Every Monday at 14:00 UTC
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: read
   actions: write
+  pull-requests: write
 
 jobs:
   trigger-build:
     name: Trigger Image Build
+    # Only run if: not a PR comment, OR if it's a PR comment with /build ami
+    if: github.event_name != 'issue_comment' || (github.event.issue.pull_request && github.event.comment.body == '/build ami')
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+      - name: React to comment
+        if: github.event_name == 'issue_comment'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            github.rest.reactions.createForIssueComment({
+              comment_id: context.payload.comment.id,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              content: 'eyes'
+            })
 
       - name: Generate Token
         id: generate-token
@@ -23,9 +37,80 @@ jobs:
         with:
           app-id: ${{ secrets.WORKFLOW_AUTH_APP_ID }}
           private-key: ${{ secrets.WORKFLOW_AUTH_PRIVATE_KEY }}
-          repositories: ${{ github.event.repository.name }}
+          owner: ${{ github.event_name == 'issue_comment' && 'ClickHouse' || '' }}
+          repositories: ${{ github.event_name != 'issue_comment' && github.event.repository.name || '' }}
+
+      - name: Check team membership
+        if: github.event_name == 'issue_comment'
+        id: check-team
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            try {
+              await github.rest.teams.getMembershipForUserInOrg({
+                org: 'ClickHouse',
+                team_slug: 'clickgres',
+                username: context.payload.comment.user.login
+              })
+              core.setOutput('authorized', 'true')
+            } catch (error) {
+              if (error.status === 404) {
+                core.setOutput('authorized', 'false')
+                core.setFailed(`User ${context.payload.comment.user.login} is not a member of ClickHouse/clickgres`)
+              } else {
+                throw error
+              }
+            }
+
+      - name: Get PR details
+        if: github.event_name == 'issue_comment' && steps.check-team.outputs.authorized == 'true'
+        id: pr-details
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            })
+            core.setOutput('ref', pr.data.head.ref)
+
+      - name: Check out code
+        if: github.event_name != 'issue_comment' || steps.check-team.outputs.authorized == 'true'
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event_name == 'issue_comment' && steps.pr-details.outputs.ref || github.ref }}
 
       - name: Run trigger script
+        if: github.event_name != 'issue_comment' || steps.check-team.outputs.authorized == 'true'
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-        run: ./scripts/trigger-build-image.sh '${{ github.ref_name }}'
+        run: |
+          BRANCH="${{ github.event_name == 'issue_comment' && steps.pr-details.outputs.ref || github.ref_name }}"
+          ./scripts/trigger-build-image.sh "$BRANCH"
+
+      - name: Comment on PR
+        if: always() && github.event_name == 'issue_comment'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const authorized = '${{ steps.check-team.outputs.authorized }}'
+            const status = '${{ job.status }}'
+
+            var body
+
+            if (authorized === 'false') {
+              body = `@${context.payload.comment.user.login} you are not authorized to build AMIs. Only members of ClickHouse/clickgres team can trigger builds.`
+            } else if (status === 'failure') {
+              body = `Failed to trigger AMI build. Please check the [action logs](${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}) for details.`
+            } else {
+              body = `AMI build triggered for branch \`${{ steps.pr-details.outputs.ref }}\`!\n\nMonitor progress in the [Actions tab](${{github.server_url}}/${{github.repository}}/actions/workflows/postgres-vm-image.yml)`
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            })
