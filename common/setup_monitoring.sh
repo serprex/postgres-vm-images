@@ -95,6 +95,7 @@ echo "=== [setup_monitoring.sh] Installing OpenTelemetry Collector ==="
 #OTEL_VERSION=$(curl -s https://api.github.com/repos/open-telemetry/opentelemetry-collector-releases/releases/latest | jq -r .name | cut -c2-)
 OTEL_VERSION="0.146.0"
 curl -L -o otelcol-contrib.deb "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v${OTEL_VERSION}/otelcol-contrib_${OTEL_VERSION}_linux_${CW_ARCH}.deb"
+df -h
 dpkg -i otelcol-contrib.deb
 rm -f otelcol-contrib.deb
 

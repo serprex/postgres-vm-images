@@ -4,5 +4,6 @@
   "build_arm64": "true",
   "run_apt_upgrade": "true",
   "upload_aws_ami": "true",
-  "use_aws_role": "true"
+  "use_aws_role": "true",
+  "image_resize_gb":  "10"
 }
