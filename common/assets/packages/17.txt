@@ -35,5 +35,3 @@ postgresql-17-tds-fdw
 postgresql-17-tds-fdw-dbgsym
 postgresql-plperl-17
 postgresql-plperl-17-dbgsym
-postgresql-plpython3-17
-postgresql-plpython3-17-dbgsym

@@ -35,5 +35,3 @@ postgresql-18-tds-fdw
 postgresql-18-tds-fdw-dbgsym
 postgresql-plperl-18
 postgresql-plperl-18-dbgsym
-postgresql-plpython3-18
-postgresql-plpython3-18-dbgsym
