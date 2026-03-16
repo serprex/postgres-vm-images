@@ -77,11 +77,11 @@ jobs:
           echo "Architecture: x64"
 
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Configure AWS credentials (build role)
         if: ${{ inputs.use_aws_role }}
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_BUILD_ROLE_ARN }}
           role-session-name: postgres-image-${{ job.name }}
@@ -180,7 +180,7 @@ jobs:
 
       - name: Configure AWS credentials (role)
         if: ${{ inputs.upload_aws_ami && !inputs.build_only && inputs.use_aws_role }}
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: postgres-image-${{ job.name }}
@@ -188,7 +188,7 @@ jobs:
 
       - name: Configure AWS credentials (access keys)
         if: ${{ inputs.upload_aws_ami && !inputs.build_only && !inputs.use_aws_role }}
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -472,7 +472,7 @@ jobs:
 
       - name: Upload AMI IDs artifact
         if: ${{ inputs.upload_aws_ami && !inputs.build_only }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ami-ids-x64
           path: ami-ids-x64.yaml
@@ -500,11 +500,11 @@ jobs:
           echo "Architecture: arm64"
 
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Configure AWS credentials (build role)
         if: ${{ inputs.use_aws_role }}
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_BUILD_ROLE_ARN }}
           role-session-name: postgres-image-${{ job.name }}
@@ -552,7 +552,7 @@ jobs:
 
       - name: Configure AWS credentials (role)
         if: ${{ !inputs.build_only && inputs.use_aws_role }}
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: postgres-image-${{ job.name }}
@@ -560,7 +560,7 @@ jobs:
 
       - name: Configure AWS credentials (access keys)
         if: ${{ !inputs.build_only && !inputs.use_aws_role }}
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -846,7 +846,7 @@ jobs:
 
       - name: Upload AMI IDs artifact
         if: ${{ !inputs.build_only }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ami-ids-arm64
           path: ami-ids-arm64.yaml
