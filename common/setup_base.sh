@@ -136,6 +136,11 @@ done
 echo "[setup_base.sh] Package cache contents:"
 ls -la "$PACKAGE_CACHE"/*
 
+echo "=== [setup_base.sh] Installing PostgreSQL init scripts ==="
+mkdir -p /var/cache/postgresql-init
+cp /tmp/common/assets/postgresql-init/*.sql /var/cache/postgresql-init/
+chmod 644 /var/cache/postgresql-init/*.sql
+
 echo "=== [setup_base.sh] Setting up users and groups ==="
 
 # Create users
