@@ -11,4 +11,5 @@ postgresql-16-semver-dbgsym
 postgresql-16-unit
 postgresql-16-unit-dbgsym
 postgresql-16-pg-ivm
+postgresql-16-pg-ivm-dbgsym
 postgresql-16-pg-clickhouse
