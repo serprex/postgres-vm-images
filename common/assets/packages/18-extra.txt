@@ -13,3 +13,4 @@ postgresql-18-unit-dbgsym
 postgresql-18-pg-ivm
 postgresql-18-pg-ivm-dbgsym
 postgresql-18-pg-clickhouse
+postgresql-18-pg-stat-ch

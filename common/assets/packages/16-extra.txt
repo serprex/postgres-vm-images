@@ -13,3 +13,4 @@ postgresql-16-unit-dbgsym
 postgresql-16-pg-ivm
 postgresql-16-pg-ivm-dbgsym
 postgresql-16-pg-clickhouse
+postgresql-16-pg-stat-ch
