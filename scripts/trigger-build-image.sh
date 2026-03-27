@@ -5,7 +5,8 @@ set -x
 BRANCH="${1:-main}"
 SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 COMMIT="$(git rev-parse --short HEAD)"
-SUFFIX="$(date -u +%Y-%m-%dT%H-%M-%S.000Z)-${BRANCH}-${COMMIT}"
+SAFE_BRANCH="${BRANCH//\//-}"
+SUFFIX="$(date -u +%Y-%m-%dT%H-%M-%S.000Z)-${SAFE_BRANCH}-${COMMIT}"
 
 # Transform distribution-accounts.yaml to aws_ami_regions format: region:account1:account2,...
 # Example: us-east-1:069372914117:060314908809,us-east-2:498192039992:337112168856,...
