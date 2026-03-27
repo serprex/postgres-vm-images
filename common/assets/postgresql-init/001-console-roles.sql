@@ -2,7 +2,7 @@ CREATE USER chpg_console_admin WITH
   CREATEDB
   CREATEROLE
   ADMIN pg_read_all_data, pg_write_all_data, pg_monitor, pg_signal_backend,
-    pg_read_all_stats, pg_read_all_settings, pg_checkpoint, pg_maintain,
+    pg_read_all_stats, pg_read_all_settings, pg_checkpoint,
     pg_create_subscription, pg_stat_scan_tables;
 GRANT ALL ON DATABASE postgres TO chpg_console_admin;
 GRANT ALL ON SCHEMA public TO chpg_console_admin;
