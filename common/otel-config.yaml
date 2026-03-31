@@ -160,3 +160,13 @@ service:
       service.otelcol.location: 'postgres_resource'
     logs:
       encoding: console
+    metrics:
+      level: normal
+      readers:
+        - periodic:
+            interval: 60000
+            exporter:
+              otlp:
+                protocol: grpc
+                endpoint: http://localhost:4317
+                insecure: true
