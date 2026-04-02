@@ -8,4 +8,4 @@ Restart=always
 RestartSec=5
 WorkingDirectory=/home/otelcol
 ExecStart=
-ExecStart=/usr/bin/otelcol-contrib --config=/home/otelcol/otel-config.yaml --config=/home/otelcol/otel-config-override.yaml --feature-gates=+confmap.enableMergeAppendOption
+ExecStart=/usr/bin/otelcol-contrib --config=/home/otelcol/otel-config.yaml --config=/home/otelcol/otel-config-override.yaml
