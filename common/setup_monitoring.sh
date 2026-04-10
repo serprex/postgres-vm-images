@@ -104,10 +104,11 @@ rm -f otelcol-contrib.deb
 # =============================================
 # Amazon GuardDuty Agent (for AWS Runtime Monitoring)
 # =============================================
-echo "=== [setup_monitoring.sh] Installing Amazon GuardDuty Agent ==="
-
-dpkg -i /tmp/amazon-guardduty-agent.deb
-rm -f /tmp/amazon-guardduty-agent.deb
+if [ "${INSTALL_GUARDDUTY:-true}" = "true" ]; then
+  echo "=== [setup_monitoring.sh] Installing Amazon GuardDuty Agent ==="
+  dpkg -i /tmp/amazon-guardduty-agent.deb
+  rm -f /tmp/amazon-guardduty-agent.deb
+fi
 
 # =============================================
 # ClamAV Security Scan

@@ -6,6 +6,7 @@ set -uexo pipefail
 
 TARGET_SIZE_GB="${1:-8}"
 RUN_APT_UPGRADE="${2:-true}"
+INSTALL_GUARDDUTY="${3:-true}"
 
 # Detect architecture
 HOST_ARCH=$(uname -m)
@@ -122,17 +123,21 @@ if [ "${UBUNTU_ARCH}" = "arm64" ]; then
 fi
 
 # Download GuardDuty agent .deb (requires AWS credentials on the host)
-echo "=== Downloading GuardDuty agent ==="
-GUARDDUTY_VERSION="1.9.2"
-GUARDDUTY_ACCOUNT_ID="733349766148"
-GUARDDUTY_REGION="us-west-2"
-aws s3 cp "s3://${GUARDDUTY_ACCOUNT_ID}-${GUARDDUTY_REGION}-guardduty-agent-deb-artifacts/${GUARDDUTY_VERSION}/${UBUNTU_ARCH}/amazon-guardduty-agent-${GUARDDUTY_VERSION}.${UBUNTU_ARCH}.deb" \
-  /tmp/amazon-guardduty-agent.deb
+if [ "${INSTALL_GUARDDUTY}" = "true" ]; then
+  echo "=== Downloading GuardDuty agent ==="
+  GUARDDUTY_VERSION="1.9.2"
+  GUARDDUTY_ACCOUNT_ID="733349766148"
+  GUARDDUTY_REGION="us-west-2"
+  aws s3 cp "s3://${GUARDDUTY_ACCOUNT_ID}-${GUARDDUTY_REGION}-guardduty-agent-deb-artifacts/${GUARDDUTY_VERSION}/${UBUNTU_ARCH}/amazon-guardduty-agent-${GUARDDUTY_VERSION}.${UBUNTU_ARCH}.deb" \
+    /tmp/amazon-guardduty-agent.deb
+fi
 
 # Copy scripts into the mounted image
 echo "=== Copying scripts to image ==="
 cp -r common ${MOUNT_POINT}/tmp/
-cp /tmp/amazon-guardduty-agent.deb ${MOUNT_POINT}/tmp/amazon-guardduty-agent.deb
+if [ "${INSTALL_GUARDDUTY}" = "true" ]; then
+  cp /tmp/amazon-guardduty-agent.deb ${MOUNT_POINT}/tmp/amazon-guardduty-agent.deb
+fi
 
 # Write architecture info
 cat > ${MOUNT_POINT}/tmp/build_arch.env << EOF
@@ -149,6 +154,7 @@ echo "=== Running setup scripts in chroot (NATIVE SPEED!) ==="
 chroot ${MOUNT_POINT} /bin/bash -c "
   set -uexo pipefail
   export DEBIAN_FRONTEND=noninteractive
+  export INSTALL_GUARDDUTY=${INSTALL_GUARDDUTY}
 
   echo '=== Running setup_base.sh ==='
   /tmp/common/setup_base.sh

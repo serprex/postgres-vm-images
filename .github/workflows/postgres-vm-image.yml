@@ -55,6 +55,10 @@ on:
         description: "Use AWS role-based authentication (if false, uses access keys)"
         default: false
         type: boolean
+      install_guardduty:
+        description: "Install Amazon GuardDuty agent in the image"
+        default: true
+        type: boolean
 
 permissions:
   id-token: write
@@ -90,7 +94,7 @@ jobs:
       - name: Build image
         run: |
           sudo --preserve-env=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_SESSION_TOKEN,AWS_REGION,AWS_DEFAULT_REGION \
-            ./build.sh ${{ inputs.image_resize_gb }} ${{ inputs.run_apt_upgrade }}
+            ./build.sh ${{ inputs.image_resize_gb }} ${{ inputs.run_apt_upgrade }} ${{ inputs.install_guardduty }}
 
       - name: Install MinIO client
         run: |
@@ -513,7 +517,7 @@ jobs:
       - name: Build image
         run: |
           sudo --preserve-env=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_SESSION_TOKEN,AWS_REGION,AWS_DEFAULT_REGION \
-            ./build.sh ${{ inputs.image_resize_gb }} ${{ inputs.run_apt_upgrade }}
+            ./build.sh ${{ inputs.image_resize_gb }} ${{ inputs.run_apt_upgrade }} ${{ inputs.install_guardduty }}
 
       - name: Set image name output
         id: set_image_name
