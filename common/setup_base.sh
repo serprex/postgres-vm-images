@@ -158,13 +158,6 @@ usermod --append --groups cert_readers prometheus
 echo "[setup_base.sh] Restricting su to sudo group..."
 echo -e '\nauth required pam_wheel.so group=sudo\n' | tee -a /etc/pam.d/su
 
-echo "=== [setup_base.sh] Setting up IMDS protection ==="
-
-apt-get install -y nftables
-cp /tmp/common/assets/imds-protection.nftables.conf /etc/nftables.conf
-cp /tmp/common/assets/imds-protection.service /etc/systemd/system/imds-protection.service
-systemctl enable imds-protection.service
-
 echo "[setup_base.sh] Adding otelcol to systemd-journal group..."
 usermod --append --groups systemd-journal otelcol
 
