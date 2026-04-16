@@ -74,6 +74,7 @@ apt-get install -y \
     libsfcgal1 \
     libsybdb5 \
     liburing2 \
+    libre2 \
     default-libmysqlclient-dev \
     python3-psycopg2
 
